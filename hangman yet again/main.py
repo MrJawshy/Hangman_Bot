@@ -21,7 +21,7 @@ def get_legal_letters(bank, legal, bad, used):
     elif legal:
         if not used:
             return legal
-        else:  # some redundant if stuff here, not causing issues but bad form probably.
+        else:  # some redundant if stuff here, not causing issues but bad form, probably.
             if bad:
                 legal = [letter for letter in legal if letter not in bad]
             if used:
@@ -139,8 +139,6 @@ def hangman_bot_game():
                     target_word[int(feedback) - 1] = guess
                 feedback = input(f"Does {guess} appear again in your word {''.join(target_word)}? y/n: ")
                 if feedback == 'n':
-                    cont = False
-                    feedback = 0
                     break
 
         if '_' not in target_word:
@@ -152,5 +150,61 @@ def hangman_bot_game():
             break
 
 
+def hangman_human_guesser():
+    """
+    declare the game's variables
+    computer picks a word
+    main loop
+        print board
+        player inputs a letter
+            add letter to used
+        check for letter in word
+            not in word
+                lose a life
+            in word
+                update blanks
+        check if game is over
+            if no _'s in blanks player wins
+            if no lives, player loses
+    :return:
+    """
+
+
+def mode_select():
+    print("")
+    print("Please select a game mode by typing the corresponding numeral and pressing enter.")
+    print('1) The computer will try to guess your word')
+    print('2) You will try to guess the computer\'s word')
+    need_input = True
+    while need_input:
+        m = input('Please make your selection: ')
+        try:
+            int(m)
+            if int(m) == 1 or 2:
+                need_input = False
+                return int(m)
+        except ValueError:
+            print("I'm sorry, I am looking for an input of 1 or 2.")
+
+
 if __name__ == '__main__':
-    hangman_bot_game()
+    print("""Welcome to MrJawsh\'s hangman game!
+            I hope you enjoy playing! :) """)
+
+    # main loop starts here
+    keep_playing = True
+    while keep_playing:
+        mode = mode_select()
+        if mode == 1:
+            hangman_bot_game()
+            print('')
+            print('Would you like to play another game of hangman?')
+            again = input('y/n: ').lower()
+            if again == 'y':
+                continue
+            else:
+                keep_playing = False
+        elif mode == 2:
+            # this will be human guesser mode
+            print('this mode is not yet built!')
+            continue
