@@ -54,17 +54,6 @@ def prune_by_bad(bank, bad):  # works!!
         bank.remove('_')
         if '_' not in bank:
             break
-    # j = 1
-    # len_bank = len(bank)
-    # while j <= len_bank:
-    #     if j >= len_bank:
-    #         break
-    #     elif bank[j] == '_':
-    #         bank.remove(bank[j])
-    #         len_bank -= 1
-    #         print(f'{j}  {bank[j-1]}')
-    #     else:
-    #         j += 1
     return bank
 
 
