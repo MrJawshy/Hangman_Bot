@@ -18,13 +18,15 @@ def get_legal_letters(bank, legal, bad, used):
             for letter in word:
                 legal.extend(letter)
         return legal
-    elif legal:
-        if not bad:
+    elif legal: 
+        print(bad)
+        if not used:
             return legal
         else:
-            legal = [letter for letter in legal if letter not in bad]
-        if used:
-            legal = [letter for letter in legal if letter not in used]
+            if bad:
+                legal = [letter for letter in legal if letter not in bad]
+            if used:
+                legal = [letter for letter in legal if letter not in used]
     return legal
 
 
@@ -110,7 +112,7 @@ def hangman_bot_game():
 
     # catch empty inputs
     while len(target_word) < 1:
-        target_word = input('please enter at least one underscore.')
+        target_word = input('please enter at least one underscore.').split()
         if len(target_word) >= 1:
             break
 
@@ -124,7 +126,9 @@ def hangman_bot_game():
 
         # adjust legal_letters, present guess to player and get feedback
         print(f'used: {used_letters}')
+        
         legal_letters = get_legal_letters(word_bank, legal_letters, bad_letters, used_letters)
+        
         guess = guess_letter_freq(legal_letters)
         if not used_letters:
             used_letters = [guess]
@@ -142,7 +146,7 @@ def hangman_bot_game():
         # loop for getting feedback on the guess, and changing target_word to reflect new letters
         elif feedback == 'y' or 'yes':
             cont = True
-            while cont:  # while feedback is y OR a number
+            while cont:
                 print(' '.join(target_word))
                 print(f"In which of the blanks does {guess} belong? {feedback_integers}?")
                 feedback = input('Please input one numeral at a time: ')
