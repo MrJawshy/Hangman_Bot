@@ -18,11 +18,10 @@ def get_legal_letters(bank, legal, bad, used):
             for letter in word:
                 legal.extend(letter)
         return legal
-    elif legal: 
-        print(bad)
+    elif legal:
         if not used:
             return legal
-        else:
+        else:  # some redundant if stuff here, not causing issues but bad form probably.
             if bad:
                 legal = [letter for letter in legal if letter not in bad]
             if used:
@@ -50,7 +49,7 @@ def prune_by_bad(bank, bad):  # works!!
             if letter in bank[i]:
                 bank[i] = '_'
                 break
-    while '_' in bank:  # this has the same effect as the commented out code below, but is way cleaner
+    while '_' in bank:
         bank.remove('_')
         if '_' not in bank:
             break
@@ -114,10 +113,7 @@ def hangman_bot_game():
         print_board(target_word, bad_letters, num_lives)
 
         # adjust legal_letters, present guess to player and get feedback
-        print(f'used: {used_letters}')
-        
         legal_letters = get_legal_letters(word_bank, legal_letters, bad_letters, used_letters)
-        
         guess = guess_letter_freq(legal_letters)
         if not used_letters:
             used_letters = [guess]
@@ -132,7 +128,7 @@ def hangman_bot_game():
             num_lives -= 1
             word_bank = prune_by_bad(word_bank, guess)
 
-        # loop for getting feedback on the guess, and changing target_word to reflect new letters
+        # If the letter is in the word, get feedback to put the guessed letter in the right place(s)
         elif feedback == 'y' or 'yes':
             cont = True
             while cont:
