@@ -56,7 +56,9 @@ def prune_by_bad(bank, bad):  # works!!
     return bank
 
 
-def prune_by_not_good(bank, target):  # works!
+"""
+Redundant code
+def prune_by_not_good(bank, target):  # works! but it's redundant once prune by location is implemented
     for letter in target:
         if letter == '_':
             continue
@@ -64,6 +66,25 @@ def prune_by_not_good(bank, target):  # works!
             for i in range(len(bank)):
                 if letter not in bank[i]:
                     bank[i] = '_'
+    while '_' in bank:
+        bank.remove('_')
+        if '_' not in bank:
+            break
+    return bank
+"""
+
+# TODO: account for: target = _est, "test" is still in bank; does that matter?
+# it does matter, because extra letters in longer words will effect guessed letter
+def prune_by_location(bank, target):
+    for i in range(len(target)):
+        if target[i] not in string.ascii_lowercase:  # this lets the function skip over '_' in target word
+            continue
+        for word in bank:  # if the letter in question is in the right place, move on
+            if target[i] == word[i]:
+                continue
+            else:  # if the letter isn't where it should be, prepare that element for removal
+                word = '_'
+                continue
     while '_' in bank:
         bank.remove('_')
         if '_' not in bank:
@@ -98,6 +119,7 @@ def hangman_bot_game():
     print('For example: for "word" you would enter _ _ _ _')
     target_word = input('Enter your blanks here, then press Enter: ').split()
 
+    # TODO: catch other bad inputs
     # catch empty inputs
     while len(target_word) < 1:
         target_word = input('please enter at least one underscore.').split()
@@ -140,6 +162,7 @@ def hangman_bot_game():
                 feedback = input(f"Does {guess} appear again in your word {''.join(target_word)}? y/n: ")
                 if feedback == 'n':
                     break
+            word_bank = prune_by_location(word_bank, target_word)
 
         if '_' not in target_word:
             print(f"The computer has guessed your word, {''.join(target_word)}!")
@@ -152,6 +175,7 @@ def hangman_bot_game():
 
 def hangman_human_guesser():
     """
+    TODO: build the human guesser game
     declare the game's variables
     computer picks a word
     main loop
