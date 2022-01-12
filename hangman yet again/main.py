@@ -73,9 +73,10 @@ def prune_by_not_good(bank, target):  # works! but it's redundant once prune by 
     return bank
 """
 
+
 # TODO: account for: target = _est, "test" is still in bank; does that matter?
 # it does matter, because extra letters in longer words will effect guessed letter
-def prune_by_location(bank, target):
+def prune_by_location(bank, target):  # todo: something is broken here
     for i in range(len(target)):
         if target[i] not in string.ascii_lowercase:  # this lets the function skip over '_' in target word
             continue
@@ -142,6 +143,8 @@ def hangman_bot_game():
         else:
             used_letters.extend(guess)
         print(f'The computer guessed the letter: {guess}.')
+
+        # todo: catch bad inputs for every stage of the feedback section
         feedback = input(f'Is {guess} in your word? y/n: ').lower()
 
         # lose a life and note the incorrect guess, then prune by bad
@@ -170,8 +173,8 @@ def hangman_bot_game():
             break
         if num_lives == 0:
             print('The computer has run out of lives and failed to guess your word! Congratulations!')
+            print(word_bank) # todo: remove this when testing is complete
             break
-
 
 def hangman_human_guesser():
     """
