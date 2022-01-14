@@ -1,4 +1,7 @@
 import string
+import random
+
+# Todo make sure to catch illegal inputs at every stage of the program
 
 
 def load_words():  # good
@@ -12,20 +15,12 @@ def prune_length(bank, target):
     return pruned_bank
 
 
-def get_legal_letters(bank, legal, bad, used):
-    if not legal:
-        for word in bank:
-            for letter in word:
+def get_legal_letters(bank, used):
+    legal = []
+    for word in bank:
+        for letter in word:
+            if letter not in used:
                 legal.extend(letter)
-        return legal
-    elif legal:
-        if not used:
-            return legal
-        else:  # some redundant if stuff here, not causing issues but bad form, probably.
-            if bad:
-                legal = [letter for letter in legal if letter not in bad]
-            if used:
-                legal = [letter for letter in legal if letter not in used]
     return legal
 
 
@@ -43,6 +38,7 @@ def guess_letter_freq(legal):  # appears to work!
     return guess
 
 
+# todo is prune by bad redundant now?
 def prune_by_bad(bank, bad):  # works!!
     for i in range(len(bank)):
         for letter in bad:
@@ -56,44 +52,23 @@ def prune_by_bad(bank, bad):  # works!!
     return bank
 
 
-"""
-Redundant code
-def prune_by_not_good(bank, target):  # works! but it's redundant once prune by location is implemented
-    for letter in target:
-        if letter == '_':
-            continue
-        else:
-            for i in range(len(bank)):
-                if letter not in bank[i]:
-                    bank[i] = '_'
-    while '_' in bank:
-        bank.remove('_')
-        if '_' not in bank:
-            break
-    return bank
-"""
-
-
-# TODO: account for: target = _est, "test" is still in bank; does that matter?
-# it does matter, because extra letters in longer words will effect guessed letter
-def prune_by_location(bank, target):  # todo: something is broken here
-    for i in range(len(target)):
-        if target[i] not in string.ascii_lowercase:  # this lets the function skip over '_' in target word
-            continue
-        for word in bank:  # if the letter in question is in the right place, move on
-            if target[i] == word[i]:
+def prune_by_location(bank, target):
+    for i in range(len(bank)):
+        word = bank[i]
+        for j in range(len(target)):
+            if bank[i] == '_':
                 continue
-            else:  # if the letter isn't where it should be, prepare that element for removal
-                word = '_'
+            elif target[j] == word[j]:
                 continue
-    while '_' in bank:
-        bank.remove('_')
-        if '_' not in bank:
-            break
-    return bank
+            elif target[j] == '_':
+                continue
+            else:
+                bank[i] = '_'
+                break
+    return [word for word in bank if word != '_']
 
 
-def print_board(target, bad, lives):
+def print_bot_board(target, bad, lives):
     print('--------------------------------------------------------')
     print(f'Computer\'s Lives: {lives}')
     print(f"Incorrect Guesses: {' '.join(bad)}")
@@ -133,10 +108,10 @@ def hangman_bot_game():
 
     # main loop
     while num_lives > 0 and '_' in target_word:
-        print_board(target_word, bad_letters, num_lives)
+        print_bot_board(target_word, bad_letters, num_lives)
 
         # adjust legal_letters, present guess to player and get feedback
-        legal_letters = get_legal_letters(word_bank, legal_letters, bad_letters, used_letters)
+        legal_letters = get_legal_letters(word_bank, used_letters)
         guess = guess_letter_freq(legal_letters)
         if not used_letters:
             used_letters = [guess]
@@ -162,6 +137,7 @@ def hangman_bot_game():
                 feedback = input('Please input one numeral at a time: ')
                 if int(feedback) in feedback_integers:
                     target_word[int(feedback) - 1] = guess
+                # todo: clean up position feedback
                 feedback = input(f"Does {guess} appear again in your word {''.join(target_word)}? y/n: ")
                 if feedback == 'n':
                     break
@@ -173,28 +149,55 @@ def hangman_bot_game():
             break
         if num_lives == 0:
             print('The computer has run out of lives and failed to guess your word! Congratulations!')
-            print(word_bank) # todo: remove this when testing is complete
             break
 
+
 def hangman_human_guesser():
-    """
-    TODO: build the human guesser game
-    declare the game's variables
-    computer picks a word
-    main loop
-        print board
-        player inputs a letter
-            add letter to used
-        check for letter in word
-            not in word
-                lose a life
-            in word
-                update blanks
-        check if game is over
-            if no _'s in blanks player wins
-            if no lives, player loses
-    :return:
-    """
+
+    num_lives = 6
+    legal_letters = [letter for letter in string.ascii_lowercase]
+    used_letters = []
+    winning_word = 'several'  # random.choice(load_words())
+    target_word = [letter if letter in used_letters else '_' for letter in winning_word]
+
+    """Main Loop"""
+    while num_lives > 0 and '_' in target_word:
+        target_word = [letter if letter in used_letters else '_' for letter in winning_word]
+
+        """prints the board"""
+        print('--------------------------------------------------------')
+        print(f'Lives: {num_lives}')
+        print(f"Incorrect Guesses: {' '.join([letter for letter in used_letters if letter not in target_word])}")
+        print(' '.join(target_word))
+        print('')
+        print('--------------------------------------------------------')
+        print(f'TEST Targetword = {target_word}')
+
+        """end of game conditions: winning or losing"""
+        if num_lives == 0:
+            print(f'You have failed to guess the computer\'s word: {winning_word}. Better luck next time!')
+            return
+        if '_' not in target_word:
+            print(f'Congratulations! You have guessed the word: {winning_word}!')
+            return
+
+        """Time for the player to guess a letter"""
+        guess = input('Please input the letter you would like to guess: ').lower()
+
+        """"Catch illegal guesses"""
+        while guess not in legal_letters:
+            guess = input('Please input the letter you would like to guess: ').lower()
+            while guess in used_letters:
+                guess = input('Please guess a letter that hasn\'t been guessed yet: ').lower()
+        used_letters.extend(guess)
+        legal_letters.remove(guess)
+
+        """Computer gives feedback"""
+        if guess in winning_word:
+            print(f'{guess} is in the computer\'s word!')
+        else:
+            num_lives -= 1
+            print(f'{guess} Is not in the computer\'s word. You have lost a life.')
 
 
 def mode_select():
@@ -224,14 +227,12 @@ if __name__ == '__main__':
         mode = mode_select()
         if mode == 1:
             hangman_bot_game()
-            print('')
-            print('Would you like to play another game of hangman?')
-            again = input('y/n: ').lower()
-            if again == 'y':
-                continue
-            else:
-                keep_playing = False
         elif mode == 2:
-            # this will be human guesser mode
-            print('this mode is not yet built!')
+            hangman_human_guesser()
+        print('')
+        print('Would you like to play another game of hangman?')
+        again = input('y/n: ').lower()
+        if again == 'y':
             continue
+        else:
+            keep_playing = False
